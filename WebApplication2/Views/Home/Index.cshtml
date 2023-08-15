@@ -1,0 +1,98 @@
+﻿@model object
+@using System.Net;
+
+<form asp-controller="Home" asp-action="UploadFromUrl" method="post">
+    <div class="form-group">
+        <label for="url">Enter a URL:</label>
+        <input type="text" class="form-control" id="url" name="url" placeholder="https://example.com">
+    </div>
+    <button type="submit" class="btn btn-primary">Get Meta Tags</button>
+    <button type="button" onclick="location.href='@Url.Action("RemoveMemoryCache", "Home")?url=' + encodeURIComponent(document.getElementsByName('url')[0].value)">Remove Memory Cache</button>
+    <button type="button" onclick="location.href='@Url.Action("RemoveBlobStorage", "Home")?url=' + encodeURIComponent(document.getElementsByName('url')[0].value)">Remove Blob Storage and Memory Cache</button>
+    <button type="button" onclick="location.href='@Url.Action("UpdateBlob", "Home")?url=' + encodeURIComponent(document.getElementsByName('url')[0].value)">Update Blob Storage and Memory Cache</button>
+</form>
+@if (ViewBag.MetaTags != null)
+{
+    <h2>Meta Tags</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Content</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var metaTag in ViewBag.MetaTags)
+            {
+                <tr>
+                    <td>@metaTag.Key</td>
+                    <td>@metaTag.Value</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @section metatags
+    {
+    @foreach (var metaTag in ViewBag.MetaTags)
+        {
+            @if (metaTag.Key == "Title")
+            {
+                <title>@metaTag.Value</title>
+            }
+            else
+            {
+                <meta name="@metaTag.Key" content="@metaTag.Value" />
+            }
+            //<meta name=@metaTag.Key content=@WebUtility.HtmlEncode(@metaTag.Value) />
+            //<meta name=@metaTag.Key> <![CDATA[@metaTag.Value]]>
+        }
+    }
+
+    @section metapropertytags
+    {
+    @foreach (var metaPropertyTag in ViewBag.MetaPropertyTags)
+        {
+            <meta property="@metaPropertyTag.Key" content="@metaPropertyTag.Value" />
+        }
+    }
+
+    @section metalinktags
+    {
+    @foreach (var metaLinkTag in ViewBag.LinkTags)
+        {
+            <link rel="@metaLinkTag.Key" href="@metaLinkTag.Value" />
+        }
+    }
+
+    @*@section metascripttags
+    {
+
+    <script type="application/ld+json">@Html.Raw(Json.Serialize(ViewBag.ScriptTags))</script>
+
+    }*@
+}
+
+@*@{
+    var headHtml = ViewData["HeadHtml"] as string;
+}
+
+@section Head{
+    @if (!string.IsNullOrEmpty(headHtml))
+    {
+        @Html.Raw(headHtml)
+    }
+}*@
+
+@{
+    string message = ViewBag.Message;
+}
+
+@if (ViewBag.Message != null)
+{
+    <script type="text/javascript">
+        window.onload = function () {
+            alert(@Html.Raw($"'{message}'"));
+        };
+    </script>
+}
